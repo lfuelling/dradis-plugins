@@ -195,7 +195,7 @@ module Dradis
         if model.valid?
           model.save
         end
-      end
+      end 
     end
   end
 end
