@@ -57,6 +57,35 @@ module Dradis
         class_for(:note).where(category_id: class_for(:category).report.id)
       end
 
+      # add some extra methods to get infos in subsequent template
+      def all_nodes
+	# pry.binding
+	class_for(:node).in_tree
+      end
+
+      def all_tags
+	class_for(:tag).all
+      end
+
+      def all_methodologies
+	class_for(:node).methodology_library.notes.map{ |n| Methodology.new(filename: n.id, content: n.text)}
+      end
+
+      def all_issues_by_tag
+          issues_by_tag = Hash.new{|h,k| h[k] = [] }
+          all_issues.each do |issue|
+            assigned = false
+            all_tags.each do |tag|
+               if issue.tags.include?(tag)
+                 issues_by_tag[tag.name] << issue
+                 assigned = true
+               end
+            end
+            issues_by_tag[:unassigned] << issue unless assigned
+          end
+          return issues_by_tag
+      end
+
       # ----------------------------------------------------- Create operations
       #
 
@@ -195,7 +224,7 @@ module Dradis
         if model.valid?
           model.save
         end
-      end 
+      end
     end
   end
 end
